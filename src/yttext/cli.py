@@ -25,7 +25,9 @@ def _summary_language_argument(value: str) -> str:
 def build_parser() -> argparse.ArgumentParser:
     default_gemini_model = os.getenv("GEMINI_MODEL", "").strip() or DEFAULT_GEMINI_MODEL
     default_summary_language = os.getenv("YTTEXT_SUMMARY_LANG", "").strip() or "auto"
-    default_transcript_format = os.getenv("YTTEXT_TRANSCRIPT_FORMAT", "").strip() or "md"
+    default_transcript_format = os.getenv("YTTEXT_TRANSCRIPT_FORMAT", "").strip().lower() or "md"
+    if default_transcript_format not in {"md", "txt", "json", "srt", "vtt"}:
+        raise RuntimeError("YTTEXT_TRANSCRIPT_FORMAT must be one of: md, txt, json, srt, vtt.")
     parser = argparse.ArgumentParser(
         prog="yttext",
         description="Extract original-language YouTube captions in multiple formats.",
