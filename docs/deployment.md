@@ -23,7 +23,7 @@ Terminate TLS at a trusted reverse proxy or hosting platform and forward request
 
 ## Gemini configuration
 
-Do not configure `GEMINI_API_KEY` or `GEMINI_MODEL` for a hosted Web service. Hosted mode intentionally ignores both variables; each user enters a key in the UI, and the built-in model is the initial selection.
+Do not configure `GEMINI_API_KEY` or `GEMINI_MODEL` for a hosted Web service. Hosted mode intentionally ignores both variables; each user enters a key in the UI, and the built-in model is the initial selection. `YTTEXT_SUMMARY_LANG` is independent of Gemini credentials and may be set in either local or hosted mode to choose the browser app's initial summary language.
 
 `./scripts/run-app.sh` starts local mode. In that mode, loopback requests may use `GEMINI_API_KEY` when the UI field is empty, and `GEMINI_MODEL` becomes the initial model. A key entered in the UI takes precedence. The server reports only whether a fallback key is available; it never returns the key itself to the browser. Environment changes take effect after restarting the app.
 
@@ -34,6 +34,7 @@ Do not configure `GEMINI_API_KEY` or `GEMINI_MODEL` for a hosted Web service. Ho
 | Variable | Default | Purpose |
 |---|---:|---|
 | `YTTEXT_MODE` | `local` | Select `local` or `hosted` capabilities and defaults |
+| `YTTEXT_SUMMARY_LANG` | `auto` | Initial browser summary language and CLI default; accepts `auto` or a BCP 47 tag such as `ja` or `pt-BR` |
 | `YTTEXT_ALLOWED_HOSTS` | Local hosts | Comma-separated Host allowlist; required in hosted mode |
 | `YTTEXT_ALLOWED_ORIGINS` | Derived from mode and allowed hosts | Comma-separated Origin allowlist for state-changing API calls; local mode uses loopback hosts plus `PORT`, while hosted mode derives HTTPS origins from allowed hosts when unset |
 | `YTTEXT_HOST` | Mode-dependent | Host used by `yttext web` and `run-app.sh` |
