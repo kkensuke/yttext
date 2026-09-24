@@ -20,6 +20,29 @@ def test_cli_reads_its_default_model_from_the_launch_environment(monkeypatch) ->
     assert args.gemini_model == "gemini-environment-model"
 
 
+def test_cli_reads_default_transcript_format_from_environment(monkeypatch) -> None:
+    monkeypatch.setenv("YTTEXT_TRANSCRIPT_FORMAT", "VTT")
+
+    args = build_parser().parse_args(["dQw4w9WgXcQ"])
+
+    assert args.format == "vtt"
+
+
+def test_cli_format_option_overrides_environment(monkeypatch) -> None:
+    monkeypatch.setenv("YTTEXT_TRANSCRIPT_FORMAT", "txt")
+
+    args = build_parser().parse_args(["dQw4w9WgXcQ", "--format", "json"])
+
+    assert args.format == "json"
+
+
+def test_cli_rejects_invalid_transcript_format_environment(monkeypatch) -> None:
+    monkeypatch.setenv("YTTEXT_TRANSCRIPT_FORMAT", "invalid")
+
+    with pytest.raises(RuntimeError, match="YTTEXT_TRANSCRIPT_FORMAT"):
+        build_parser()
+
+
 def test_cli_reads_default_summary_language_from_environment(monkeypatch) -> None:
     monkeypatch.setenv("YTTEXT_SUMMARY_LANG", "PT-br")
 
