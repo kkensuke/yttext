@@ -75,6 +75,7 @@
     busy: false,
     appInfo: {
       gemini_model: "gemini-flash-lite-latest",
+      summary_language: "auto",
       summary_languages: [{ code: "auto", label: "Same as transcript" }],
       capabilities: { byok: true, server_api_key: false, browser_cookies: false },
     },
@@ -185,7 +186,7 @@
   }
 
   function renderSummaryLanguages() {
-    const currentLanguage = selectedSummaryLanguage();
+    const currentLanguage = String(state.appInfo.summary_language || "auto");
     const configuredLanguages = Array.isArray(state.appInfo.summary_languages)
       ? state.appInfo.summary_languages
       : [];
