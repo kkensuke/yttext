@@ -1,1 +1,0 @@
-/Users/kkensuke/github/ignore/yt_transcript/memo.md
