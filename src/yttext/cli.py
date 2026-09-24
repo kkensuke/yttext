@@ -24,6 +24,7 @@ def _summary_language_argument(value: str) -> str:
 
 def build_parser() -> argparse.ArgumentParser:
     default_gemini_model = os.getenv("GEMINI_MODEL", "").strip() or DEFAULT_GEMINI_MODEL
+    default_summary_language = os.getenv("YTTEXT_SUMMARY_LANG", "").strip() or "auto"
     parser = argparse.ArgumentParser(
         prog="yttext",
         description="Extract original-language YouTube captions in multiple formats.",
@@ -59,12 +60,12 @@ def build_parser() -> argparse.ArgumentParser:
         "-l",
         "--summary-lang",
         type=_summary_language_argument,
-        default="auto",
+        default=default_summary_language,
         metavar="LANGUAGE",
         help=(
             "Summary language: auto uses the transcript's primary language; "
             f"common tags are {', '.join(item.code for item in COMMON_SUMMARY_LANGUAGES)}; "
-            "other valid BCP 47 tags are accepted (default: auto)"
+            "other valid BCP 47 tags are accepted (default: YTTEXT_SUMMARY_LANG or auto)"
         ),
     )
     parser.add_argument(

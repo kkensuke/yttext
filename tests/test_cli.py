@@ -20,6 +20,29 @@ def test_cli_reads_its_default_model_from_the_launch_environment(monkeypatch) ->
     assert args.gemini_model == "gemini-environment-model"
 
 
+def test_cli_reads_default_summary_language_from_environment(monkeypatch) -> None:
+    monkeypatch.setenv("YTTEXT_SUMMARY_LANG", "PT-br")
+
+    args = build_parser().parse_args(["dQw4w9WgXcQ"])
+
+    assert args.summary_lang == "pt-BR"
+
+
+def test_cli_summary_language_option_overrides_environment(monkeypatch) -> None:
+    monkeypatch.setenv("YTTEXT_SUMMARY_LANG", "ja")
+
+    args = build_parser().parse_args(["dQw4w9WgXcQ", "--summary-lang", "en"])
+
+    assert args.summary_lang == "en"
+
+
+def test_cli_rejects_invalid_summary_language_environment(monkeypatch) -> None:
+    monkeypatch.setenv("YTTEXT_SUMMARY_LANG", "custom")
+
+    with pytest.raises(SystemExit):
+        build_parser().parse_args(["dQw4w9WgXcQ"])
+
+
 def test_cli_supports_output_directory() -> None:
     args = build_parser().parse_args(["dQw4w9WgXcQ", "--output-dir", "output"])
 

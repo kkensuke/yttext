@@ -20,6 +20,7 @@ from yttext.web_state import PendingSummaryStore
 def _clear_gemini_environment(monkeypatch) -> None:
     monkeypatch.delenv("GEMINI_API_KEY", raising=False)
     monkeypatch.delenv("GEMINI_MODEL", raising=False)
+    monkeypatch.delenv("YTTEXT_SUMMARY_LANG", raising=False)
 
 
 def _result(*, character_count: int = 6) -> ExtractionResult:
@@ -71,6 +72,7 @@ def test_local_info_reports_environment_configuration_without_exposing_the_key(
 ) -> None:
     monkeypatch.setenv("GEMINI_API_KEY", "environment-secret")
     monkeypatch.setenv("GEMINI_MODEL", "environment-model")
+    monkeypatch.setenv("YTTEXT_SUMMARY_LANG", "PT-br")
     client = TestClient(
         web.create_app(mode="local"),
         client=("127.0.0.1", 50_000),
@@ -86,12 +88,14 @@ def test_local_info_reports_environment_configuration_without_exposing_the_key(
         "browser_cookies": True,
     }
     assert info.json()["gemini_model"] == "environment-model"
+    assert info.json()["summary_language"] == "pt-BR"
     assert "environment-secret" not in info.text + index.text
 
 
 def test_hosted_info_and_model_discovery_ignore_environment_configuration(monkeypatch) -> None:
     monkeypatch.setenv("GEMINI_API_KEY", "operator-secret")
     monkeypatch.setenv("GEMINI_MODEL", "operator-model")
+    monkeypatch.setenv("YTTEXT_SUMMARY_LANG", "ja")
     client = TestClient(
         web.create_app(
             mode="hosted",
@@ -106,10 +110,18 @@ def test_hosted_info_and_model_discovery_ignore_environment_configuration(monkey
 
     assert info.json()["capabilities"]["server_api_key"] is False
     assert info.json()["gemini_model"] == web.DEFAULT_GEMINI_MODEL
+    assert info.json()["summary_language"] == "ja"
     assert models.status_code == 400
     assert models.json()["error"]["code"] == "missing_api_key"
     assert "operator-secret" not in info.text + models.text
     assert "operator-model" not in info.text + models.text
+
+
+def test_web_rejects_invalid_summary_language_environment(monkeypatch) -> None:
+    monkeypatch.setenv("YTTEXT_SUMMARY_LANG", "custom")
+
+    with pytest.raises(RuntimeError, match="Invalid YTTEXT_SUMMARY_LANG"):
+        web.create_app(mode="local")
 
 
 def test_extract_never_accepts_or_forwards_an_api_key(monkeypatch) -> None:

@@ -29,7 +29,7 @@ from .service import (
     mark_summary_pending,
     summarize_transcript,
 )
-from .summary_languages import summary_language_options
+from .summary_languages import normalize_summary_language, summary_language_options
 from .web_state import (
     PendingSummaryStore,
     SummaryJobBusy,
@@ -157,6 +157,7 @@ def create_app(
 ) -> FastAPI:
     web_mode = mode or _configured_mode()
     local_api_key, local_gemini_model = _local_gemini_configuration(web_mode)
+    default_summary_language = _configured_summary_language()
     hosts = allowed_hosts or _configured_hosts(web_mode)
     origins = (
         allowed_origins if allowed_origins is not None else _configured_origins(web_mode, hosts)
@@ -287,6 +288,7 @@ def create_app(
             "version": __version__,
             "gemini_model": local_gemini_model if local_configuration else DEFAULT_GEMINI_MODEL,
             "summary_languages": summary_language_options(),
+            "summary_language": default_summary_language,
             "summary_limit_characters": MAX_SUMMARY_LENGTH,
             "capabilities": {
                 "byok": True,
@@ -484,6 +486,14 @@ def _error_content(code: str, message: str, hint: str = "") -> dict[str, object]
             "hint": hint,
         },
     }
+
+
+def _configured_summary_language() -> str:
+    value = os.getenv("YTTEXT_SUMMARY_LANG", "").strip() or "auto"
+    try:
+        return normalize_summary_language(value)
+    except ValueError as exc:
+        raise RuntimeError(f"Invalid YTTEXT_SUMMARY_LANG: {exc}") from exc
 
 
 def _configured_mode() -> Literal["local", "hosted"]:
