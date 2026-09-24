@@ -158,6 +158,7 @@ def create_app(
     web_mode = mode or _configured_mode()
     local_api_key, local_gemini_model = _local_gemini_configuration(web_mode)
     default_summary_language = _configured_summary_language()
+    default_transcript_format = _configured_transcript_format()
     hosts = allowed_hosts or _configured_hosts(web_mode)
     origins = (
         allowed_origins if allowed_origins is not None else _configured_origins(web_mode, hosts)
@@ -287,6 +288,7 @@ def create_app(
         return {
             "version": __version__,
             "gemini_model": local_gemini_model if local_configuration else DEFAULT_GEMINI_MODEL,
+            "transcript_format": default_transcript_format,
             "summary_languages": summary_language_options(),
             "summary_language": default_summary_language,
             "summary_limit_characters": MAX_SUMMARY_LENGTH,
@@ -486,6 +488,13 @@ def _error_content(code: str, message: str, hint: str = "") -> dict[str, object]
             "hint": hint,
         },
     }
+
+
+def _configured_transcript_format() -> str:
+    value = os.getenv("YTTEXT_TRANSCRIPT_FORMAT", "").strip().lower() or "md"
+    if value not in {"md", "txt", "json", "srt", "vtt"}:
+        raise RuntimeError("YTTEXT_TRANSCRIPT_FORMAT must be one of: md, txt, json, srt, vtt.")
+    return value
 
 
 def _configured_summary_language() -> str:
