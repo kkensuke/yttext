@@ -97,6 +97,7 @@ In Windows PowerShell, environment variables use PowerShell syntax. For example:
 ```powershell
 $env:GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"
 $env:GEMINI_MODEL = "gemini-flash-lite-latest" # Optional
+$env:YTTEXT_SUMMARY_LANG = "ja" # Optional
 uv run yttext "YOUTUBE_URL"
 ```
 
@@ -116,11 +117,12 @@ Paste a YouTube URL or video ID, adjust the transcript and summary settings if n
 
 The key is needed only for Gemini summaries and model discovery. When a key is entered in the browser, it is sent to the app only for that Gemini operation, and the app forwards it to Google without placing it in a URL or saving it. The summary flow clears the entered key after sending it; clearing, reloading, or closing the tab also removes it.
 
-When the app runs locally, it can use `GEMINI_API_KEY` as a fallback and `GEMINI_MODEL` as the initial model. The key remains in the server process and is never returned to the browser; a key entered in the UI overrides it for that request.
+When the app runs locally, it can use `GEMINI_API_KEY` as a fallback and `GEMINI_MODEL` as the initial model. The key remains in the server process and is never returned to the browser; a key entered in the UI overrides it for that request. `YTTEXT_SUMMARY_LANG` sets the browser app's initial summary language in both local and hosted modes; it defaults to `auto` and accepts the same BCP 47 tags as `--summary-lang`.
 
 ```bash
 export GEMINI_API_KEY="YOUR_GEMINI_API_KEY"
 export GEMINI_MODEL="gemini-flash-lite-latest"  # Optional
+export YTTEXT_SUMMARY_LANG="ja"                    # Optional
 yttext web
 ```
 
@@ -132,11 +134,12 @@ For self-hosting, see [Hosted deployment](https://github.com/kkensuke/yttext/blo
 
 ## CLI
 
-The CLI reads `GEMINI_API_KEY` and optional `GEMINI_MODEL` from its environment. The API key cannot be passed as a command-line argument.
+The CLI reads `GEMINI_API_KEY`, optional `GEMINI_MODEL`, and optional `YTTEXT_SUMMARY_LANG` from its environment. The API key cannot be passed as a command-line argument.
 
 ```bash
 # Transcript and summary
 export GEMINI_API_KEY="YOUR_GEMINI_API_KEY"
+export YTTEXT_SUMMARY_LANG="ja"  # Optional default for summaries
 yttext "YOUTUBE_URL"
 # or yttext "VIDEO_ID"
 
@@ -191,7 +194,7 @@ When running these examples from a source checkout, add the `uv run` prefix show
 
 Long option names must be written in full; prefix abbreviations such as `--out` are not accepted. Use the short aliases above when a compact command is preferred.
 
-The CLI selects the model in this order: `--gemini-model`, `GEMINI_MODEL`, then the built-in `gemini-flash-lite-latest`. If its key is missing or summarization fails, the transcript is still written and a warning is shown.
+The CLI selects the model in this order: `--gemini-model`, `GEMINI_MODEL`, then the built-in `gemini-flash-lite-latest`. It selects the summary language in this order: `--summary-lang`, `YTTEXT_SUMMARY_LANG`, then `auto`. If its key is missing or summarization fails, the transcript is still written and a warning is shown.
 
 ## Troubleshooting
 
