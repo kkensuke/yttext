@@ -75,6 +75,7 @@
     busy: false,
     appInfo: {
       gemini_model: "gemini-flash-lite-latest",
+      transcript_format: "md",
       summary_language: "auto",
       summary_languages: [{ code: "auto", label: "Same as transcript" }],
       capabilities: { byok: true, server_api_key: false, browser_cookies: false },
@@ -151,6 +152,7 @@
       state.appInfo = await requestJson("/api/info");
       state.ready = true;
       renderSummaryLanguages();
+      elements.transcriptFormat.value = state.appInfo.transcript_format || "md";
       elements.geminiModel.value = state.appInfo.gemini_model || "gemini-flash-lite-latest";
       elements.versionLabel.textContent = `v${state.appInfo.version || ""}`;
       elements.apiStatus.className = "status-pill status-ready";
